@@ -1,28 +1,170 @@
-# ZS-Young-Data-scientist-2018-Winner-rank-3-Solution-
+# ZS-Young-Data-scientist-2018-Winner-rank-3-Solution
 # online phase I - rank 9/4743 participants
 # offline phase II - rank 3/43 selected participants (please read notebook for detailed approach)
 
-----------------------------------------------------------------------------------------------------------------------
-# Approach for online phase I
+============================================================================
 
-----------------------------------------------------------------------------------------------------------------------
-                                              Cleaning Approach
+ZS Data science challenge 2018 phase I (July 2018-July 2018)(rank 9/4743)
 
-----------------------------------------------------------------------------------------------------------------------
-In this process, I observed that both train and test data has years and months separated in two columns
-So, in order to make a visualization, we need to extract date with these years and months features. So, I created 
-the date column in both test and train data. After this, it appears that train data has week wise distribution of records, so we need to convert it into month wise distribution to make our train data equivalent to test data. So, I simply aggregate the sales info on Year - Month - Product_ID - country wise and sum all the weekly sales to convert it into month wise data which now will match test data.
+============================================================================
 
-----------------------------------------------------------------------------------------------------------------------
-                                                  EDA Approach
+--------------------------------------------------------------------------
+Problem Description :->
 
-----------------------------------------------------------------------------------------------------------------------
+To forecast the sales for different products in different reasons.
+We were provided with the sales data of different products from different
+merchants in a given reason, country wise. Along with this, orgainizer also
+provide us the holiday and promotional expense data, where holiday data 
+consists of holiday dates in a given country and promotional data consists
+of expense that was made to promote a given product in a given reason at 
+a given time (year month).
 
-In this process, I performed an indepth EDA with decompostion of all the time series into trends, seasons and residual component.During the EDA, I performed a rigrous parameter search for ARIMA and then verifying with digonsotic report whether everytihng is systematic/relevant or not. With this parameter search, have obtained some good parameters set for each of the product-country pair ARIMA model.
+Data :
+train, test, holiday data, promotinal data
 
-----------------------------------------------------------------------------------------------------------------------
-                                              Modeling Approach
+Evaluation metric : SMAPE (Symmetric Mean absolute Percent error)
+SMAPE self-limits to an error rate of 200%, reducing the influence of these
+low volume items. Low volume items are problematic because they could
+otherwise have infinitely high error rates that skew the overall error rate.
+SMAPE = (2/N) sum((|f-a|)/(f+a))
 
-----------------------------------------------------------------------------------------------------------------------
 
-After this, I tried to make a baseline with fbprophet package of facebook because it provides quiet a comparative forecast without much mannual tunning. with this I scored  1.60559. After this, I get a decent baseline, now there was a need for another good improvement, so i tried another famous method of holts_winter forecasting techanique. With this technique, I got another improvement and scored 1.73195 on leaderboard. Now it was a good time to start error analysis, so I plotted the forecastig of holts winter and observed that in some cases, there was a transparent error, so to manage this, I tried to fit ARIMA model. With the parameter obtained during searching in EDA, ARIMA gives me a score of ~1.70 which wasn't imrovement on previous holts model. Now, I decided to correct errors of HOLTS winter model with ARIMA, So I plotted the holts and ARIMA forecast crossed over each other to better visualize the performance of each of the model on the test data set comparing with train dataset. With this error correction, I imroved my leaderboard score to 1.76017. Then I tried aggregating multiple models so that here error can be corrected. This method is simply averaging of multiple models without any weights to increase diversity between models and it worked good for me and my leadervboard score jumped to 1.79550, Now my submission limit burned out. :)							
+
+--------------------------------------------------------------------------
+EDA & Preprocessing steps :->
+
+Step 1 :->
+I found train data to be distributed week wise whereas test data was 
+distributed month wise. So, in order to make train and test data 
+equivalent, we need to convert the week wise distribution to month 
+wise distribution for train data. So, I grouped the train data over
+year-month-country-product and sum the revenues of week to get monthly
+revenues.
+
+Step 2 :->
+After that, I looked for missing values and outliers(through descriptive
+stats and univariate analysis). There were some missing in expense column 
+and I treat it with zero value (ie no expense were made). After that, I 
+started time series analysis of sales revenue generated by particular 
+product in given region (country). I created my own custom setup for 
+visualizing decomposed time series componenets (trend, sesonality, residual).
+
+
+
+--------------------------------------------------------------------------
+Modeling Phase :-> 
+
+After carefully visualizing the decomposed componenets, I started with
+fbprophet package of facebook. I tried with default params as described 
+in their documentation and it worked out quite well for me. It gave me
+good baseline and now then I moved towards a famous holts winter 
+exponenetial smoothing method. I used additive trend and seasonilty
+and it worked again quite well for me and it gave me more lift on the
+public Leaderboard. It was a good time to use most famous ARIMA method.
+So, I wrote my own setup to automate the params rigrous search through AIC(Akaike Information Characteristic) and after that I used the obtained 
+params in ARIMA and my score was more lifted. Now, I started using error
+analysis cross projecting of test data prediction with train data prediction
+by all three models (fbprophet, holts winter and ARIMA), and I found that,
+some transparent errors which seems to become corrected after I averaged
+all three of these models. And it was my final submission through which
+I was able to get rank 9 out of 4743 participants.
+
+--------------------------------------------------------------------------
+Conclusion:
+For time series problem, we can easilt predict a good forecasting without
+using any other features than dates and target.
+Always use averaging of diverse models to correct errors.
+
+
+
+============================================================================
+
+ZS Data science challenge 2018 phase II (August 2018 10hrs) (rank 3/43)
+
+============================================================================
+
+
+--------------------------------------------------------------------------
+Problem Description : (Customer targeting Problem)
+An pharma company XYZ, based in the United States, has several 
+products in the various therapy areas. It markets these products to 
+physicians all over the country through various channels -
+1. Sales representative (Medical rep - Rep_Live)
+2. Remote representative (Medical rep via video conference – Rep_Remote)
+3. Peer to Peer marketing programs (such as conferences, etc. – P2P)
+4. Digital message (such as mobile messages – Digital_Push)
+5. Online video (such as online video, etc – Digital_Pull)
+6. Direct mail (Snail mail – Direct_Mail)
+7. Online advertisement (Such as website banner – Digital_Pull)
+8. Digital Email (such as Email – Digital_Push)
+However, it’s current marketing efforts are not proving to be very
+successful – Physicians are not engaging with the content delivered to them 
+through these various channels. XYZ now wants to improve its 
+targeting strategy by analyzing the “affinity” of each physician to the 
+above channels. “Affinity” data has been collected for various physicians 
+through historical channel interactions with doctors and every doctor has
+been given an affinity rating for each of the above 8 channels on a scale of
+0 – 1 however lot of HCPs do not have all channel information.Develop an 
+approach to assign affinity for every tactic of HCP in the “SUBMISSION” file.
+
+
+Data :
+all data(id,different channels affinity, region(urban or rural)) , 
+demographic data(physicians info like age, gender)
+
+Evaluation Metric : RMSE (Root Mean Squared Error)
+
+
+--------------------------------------------------------------------------
+EDA :->
+
+First I proceed with univariate analysis to understand the distribution of 
+each features. 
+
+>Univariate analysis : 
+
+Sanity checking HCP_ID unique
+Most of the channels are +ve skewed.
+DRT, DMS, OLA seems to have good affinity <0.2
+Age column have  >25% values >-110 (binning and winsorization)
+Gender have  28 missing values and replace it with mode.
+No outliers except in ages > 121
+
+>Multivariate analysis:
+
+Heatmap (Data was good and not much multicollineariaty).
+
+
+
+--------------------------------------------------------------------------
+Preprocessing :->
+
+Cleaning : 
+Impute gender (Mode)
+Iterative imputation (for missing values)
+
+Feature Generation :
+Aggregate feature generation (Total, max and average impact)
+Doctors experience
+
+Feature Norm and Encoding
+Standard scaling Age
+OneHotEncoding all categorical features
+
+Strategey :
+Try Iterative modeling process for error correction.       
+(refer Michael B. Richman Missing data imputation)
+
+
+--------------------------------------------------------------------------
+Modeling :->
+
+RandomForest Performed well with high estimators and depth.
+Ridge and Elastic performed equally good.
+XGBoost performed comparatively not good (may be due to not proper tuning).
+So, I Proceed with Random Forest
+
+With RandomForest : 
+Avgerage RMSE : 0.14
+
+
