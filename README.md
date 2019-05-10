@@ -71,7 +71,7 @@ I was able to get rank 9 out of 4743 participants.
 
 --------------------------------------------------------------------------
 Conclusion:
-For time series problem, we can easilt predict a good forecasting without
+For time series problem, we can easily predict a good forecasting without
 using any other features than dates and target.
 Always use averaging of diverse models to correct errors.
 
